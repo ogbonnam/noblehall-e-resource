@@ -100,7 +100,6 @@
 // }
 
 // app/students/assignments/[assignmentId]/page.tsx
-
 import { notFound, redirect } from "next/navigation";
 import auth from "@/auth";
 import {
@@ -113,29 +112,21 @@ import { Query } from "node-appwrite";
 import { appwriteConfig } from "@/appwrite/config";
 import { cookies } from "next/headers";
 
-// ✅ Properly typed function for a dynamic segment route in Next.js App Router
-type PageProps = {
-  params: {
-    assignmentId: string;
-  };
-};
+export default async function AssignmentPage(props: {
+  params: Promise<{ assignmentId: string }>;
+}) {
+  const { assignmentId } = await props.params;
 
-export default function AssignmentPageWrapper(props: PageProps) {
-  return <AssignmentPage {...props} />;
-}
-
-// ✅ Move async logic into a separate function to avoid params type conflict
-async function AssignmentPage({ params }: PageProps) {
-  const { assignmentId } = params;
   const user = await auth.getUser();
-
-  if (!user) redirect("/login");
+  if (!user) {
+    redirect("/login");
+  }
 
   let assignment: AssignmentData | null = null;
   let studentYearGroup: string | undefined;
 
   try {
-    const cookiesStore = await cookies(); // Don't await cookies()
+    const cookiesStore = await cookies();
     const sessionCookie = cookiesStore.get("session")?.value;
 
     if (!sessionCookie) {
@@ -179,7 +170,9 @@ async function AssignmentPage({ params }: PageProps) {
     );
   }
 
-  if (!assignment) notFound();
+  if (!assignment) {
+    notFound();
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 font-inter flex flex-col items-center py-10 px-4">
