@@ -4,15 +4,11 @@ import { createSessionClient } from "@/appwrite/appwriteClient";
 import { appwriteConfig } from "@/appwrite/config";
 import { headers } from "next/headers";
 
-/**
- * Handles GET requests to stream a file from Appwrite Storage.
- * This API route acts as a secure proxy.
- */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { fileId: string } }
+  context: { params: { fileId: string } }
 ) {
-  const { fileId } = params;
+  const { fileId } = context.params;
 
   // --- CORRECTED: Use 'await' to resolve the headers object ---
   const requestHeaders = await headers();
