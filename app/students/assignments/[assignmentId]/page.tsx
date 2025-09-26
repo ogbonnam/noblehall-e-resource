@@ -99,6 +99,8 @@
 //   );
 // }
 
+// app/students/assignments/[assignmentId]/page.tsx
+
 import { notFound, redirect } from "next/navigation";
 import auth from "@/auth";
 import {
@@ -111,30 +113,32 @@ import { Query } from "node-appwrite";
 import { appwriteConfig } from "@/appwrite/config";
 import { cookies } from "next/headers";
 
-// ✅ Fix: Inline the params typing correctly to avoid TS errors
-export default async function AssignmentPage({
-  params,
-}: {
-  params: { assignmentId: string };
-}) {
+// ✅ Properly typed function for a dynamic segment route in Next.js App Router
+type PageProps = {
+  params: {
+    assignmentId: string;
+  };
+};
+
+export default function AssignmentPageWrapper(props: PageProps) {
+  return <AssignmentPage {...props} />;
+}
+
+// ✅ Move async logic into a separate function to avoid params type conflict
+async function AssignmentPage({ params }: PageProps) {
   const { assignmentId } = params;
   const user = await auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
   let assignment: AssignmentData | null = null;
   let studentYearGroup: string | undefined;
 
   try {
-    const cookiesStore = await cookies(); // ⚠️ Don't await cookies(), it's synchronous in Next 13+
+    const cookiesStore = await cookies(); // Don't await cookies()
     const sessionCookie = cookiesStore.get("session")?.value;
 
     if (!sessionCookie) {
-      console.error(
-        "Session cookie not found when trying to fetch user profile in AssignmentPage."
-      );
       redirect("/login");
       return null;
     }
@@ -152,9 +156,6 @@ export default async function AssignmentPage({
     }
 
     if (!studentYearGroup) {
-      console.warn(
-        `User ${user.$id} does not have a year group defined in their profile.`
-      );
       redirect(
         "/complete-profile?profileError=Please complete your profile to view assignments."
       );
@@ -172,15 +173,13 @@ export default async function AssignmentPage({
       notFound();
     }
   } catch (error) {
-    console.error("Error fetching assignment details for page:", error);
+    console.error("Error fetching assignment details:", error);
     redirect(
       "/students/dashboard?dashboardError=Failed to load assignment details."
     );
   }
 
-  if (!assignment) {
-    notFound();
-  }
+  if (!assignment) notFound();
 
   return (
     <div className="min-h-screen bg-gray-100 font-inter flex flex-col items-center py-10 px-4">
