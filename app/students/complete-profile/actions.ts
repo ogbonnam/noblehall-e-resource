@@ -109,7 +109,8 @@ export async function updateProfile(formData: FormData) {
     });
 
     // FIX: Redirect to students/dashboard after successful update
-    return redirect("/students/dashboard");
+    // return redirect("/students/dashboard");
+    
   } catch (error: any) {
     console.error("Profile update failed:", error);
     const cookiesStore = await cookies();
@@ -120,6 +121,6 @@ export async function updateProfile(formData: FormData) {
     }
 
     cookiesStore.set("profileError", errorMessage, { path: "/", maxAge: 5 });
-    return redirect("/students/complete-profile");
+    // return redirect("/students/complete-profile");
   }
 }
