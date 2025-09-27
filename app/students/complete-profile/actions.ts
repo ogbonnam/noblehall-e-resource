@@ -26,8 +26,8 @@ export async function updateProfile(formData: FormData) {
       "You must be logged in to complete your profile.",
       { path: "/", maxAge: 5 }
     );
-    redirect("/login");
-    return;
+    return redirect("/login");
+    
   }
 
   const yearGroup = formData.get("yearGroup") as string | null; // Can be null if not selected
@@ -44,8 +44,8 @@ export async function updateProfile(formData: FormData) {
         "Session not found. Please log in again.",
         { path: "/", maxAge: 5 }
       );
-      redirect("/login");
-      return;
+      return redirect("/login");
+      
     }
 
     const { databases } = await createSessionClient(sessionCookie); // FIX: Pass the sessionCookie value
@@ -63,8 +63,8 @@ export async function updateProfile(formData: FormData) {
         "User profile not found. Please contact support.",
         { path: "/", maxAge: 5 }
       );
-      redirect("/login");
-      return;
+      return redirect("/login");
+      
     }
 
     const userProfileDocumentId = documents[0].$id;
@@ -109,7 +109,7 @@ export async function updateProfile(formData: FormData) {
     });
 
     // FIX: Redirect to students/dashboard after successful update
-    redirect("/students/dashboard");
+    return redirect("/students/dashboard");
   } catch (error: any) {
     console.error("Profile update failed:", error);
     const cookiesStore = await cookies();
@@ -120,6 +120,6 @@ export async function updateProfile(formData: FormData) {
     }
 
     cookiesStore.set("profileError", errorMessage, { path: "/", maxAge: 5 });
-    redirect("/students/complete-profile");
+    return redirect("/students/complete-profile");
   }
 }
